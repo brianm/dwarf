@@ -3,7 +3,7 @@ package org.skife.galaxy.dwarf.cli;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.skife.cli.Command;
 import org.skife.galaxy.dwarf.Dwarf;
-import org.skife.galaxy.dwarf.state.Host;
+import org.skife.galaxy.dwarf.Host;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
 import java.nio.file.Paths;

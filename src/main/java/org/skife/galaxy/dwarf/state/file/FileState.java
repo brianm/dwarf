@@ -6,9 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
-import org.skife.galaxy.dwarf.state.Deployment;
-import org.skife.galaxy.dwarf.state.Host;
-import org.skife.galaxy.dwarf.state.State;
+import org.skife.galaxy.dwarf.Deployment;
+import org.skife.galaxy.dwarf.Host;
+import org.skife.galaxy.dwarf.State;
 
 import java.io.IOException;
 import java.io.Reader;

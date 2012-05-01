@@ -1,12 +1,7 @@
 package org.skife.galaxy.dwarf;
 
-import org.skife.galaxy.dwarf.state.Deployment;
-import org.skife.galaxy.dwarf.state.Host;
-import org.skife.galaxy.dwarf.state.State;
-
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 

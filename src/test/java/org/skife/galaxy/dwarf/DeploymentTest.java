@@ -1,8 +1,6 @@
 package org.skife.galaxy.dwarf;
 
 import org.junit.Test;
-import org.skife.galaxy.dwarf.state.Deployment;
-import org.skife.galaxy.dwarf.state.Host;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

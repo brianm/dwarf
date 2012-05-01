@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
-import org.skife.galaxy.dwarf.state.Deployment;
+import org.skife.galaxy.dwarf.Deployment;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
 import java.nio.file.Paths;

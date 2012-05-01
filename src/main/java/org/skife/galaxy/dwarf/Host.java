@@ -1,4 +1,4 @@
-package org.skife.galaxy.dwarf.state;
+package org.skife.galaxy.dwarf;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

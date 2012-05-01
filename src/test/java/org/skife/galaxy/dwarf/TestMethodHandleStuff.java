@@ -1,9 +1,7 @@
 package org.skife.galaxy.dwarf;
 
 import org.junit.Test;
-import org.skife.galaxy.dwarf.state.Host;
 
-import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;

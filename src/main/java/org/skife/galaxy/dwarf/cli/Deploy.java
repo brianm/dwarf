@@ -7,11 +7,10 @@ import org.skife.cli.Command;
 import org.skife.cli.Option;
 import org.skife.cli.OptionType;
 import org.skife.galaxy.dwarf.Dwarf;
-import org.skife.galaxy.dwarf.state.Host;
+import org.skife.galaxy.dwarf.Host;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 

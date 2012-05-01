@@ -1,4 +1,7 @@
-package org.skife.galaxy.dwarf.state;
+package org.skife.galaxy.dwarf;
+
+import org.skife.galaxy.dwarf.Deployment;
+import org.skife.galaxy.dwarf.Host;
 
 import java.util.Set;
 
