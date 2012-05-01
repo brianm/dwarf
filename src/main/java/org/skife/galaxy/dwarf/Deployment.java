@@ -20,7 +20,7 @@ import static com.google.common.io.CharStreams.readLines;
 public class Deployment implements Comparable<Deployment>
 {
 
-    private final UUID id;
+    private final UUID   id;
     private final String directory;
     private final String name;
     private final String host;
@@ -61,7 +61,6 @@ public class Deployment implements Comparable<Deployment>
     {
         UUID id = UUID.randomUUID();
 
-
         Path bundle_tmp = Files.createTempFile("bundle", ".tmp");
         try (InputStream in = bundle.toURL().openStream()) {
             Files.copy(in, bundle_tmp, StandardCopyOption.REPLACE_EXISTING);
@@ -77,7 +76,9 @@ public class Deployment implements Comparable<Deployment>
                      "-zxvf", work_dir.resolve("bundle.tar.gz").toString());
             List<String> lines = readLines(ssh.exec("ls", work_dir.resolve("expand").toString()).getStdoutSupplier());
             if (lines.size() != 1) {
-                throw new IllegalStateException("Bundle had too many files " + lines.toString() + " in root");
+                ssh.exec("rm", "-rf", work_dir.toString());
+                throw new IllegalStateException("Bundle " + bundle +
+                                                " had too many files " + lines.toString() + " in root");
             }
             ssh.exec("mv",
                      work_dir.resolve("expand").resolve(lines.get(0)).toString(),
