@@ -1,11 +1,13 @@
 package org.skife.galaxy.dwarf.cli;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Optional;
 import org.skife.cli.Command;
 import org.skife.galaxy.dwarf.Dwarf;
 import org.skife.galaxy.dwarf.Host;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
@@ -18,7 +20,7 @@ public class HostList implements Callable<Void>
     public Void call() throws Exception
     {
         FileState state = new FileState(Paths.get(".dwarf"));
-        Dwarf d = new Dwarf(state, "/tmp/dwarf");
+        Dwarf d = new Dwarf(state, "/tmp/dwarf", Optional.<Path>absent());
 
         for (Host host : d.getHosts()) {
             System.out.println(mapper.writeValueAsString(host));

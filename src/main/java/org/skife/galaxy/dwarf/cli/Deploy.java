@@ -1,5 +1,7 @@
 package org.skife.galaxy.dwarf.cli;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.skife.cli.Arguments;
@@ -10,19 +12,29 @@ import org.skife.galaxy.dwarf.Dwarf;
 import org.skife.galaxy.dwarf.Host;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
+import javax.annotation.Nullable;
 import java.net.URI;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 @Command(name = "deploy")
 public class Deploy implements Callable<Void>
 {
-    @Option(name={"-d", "--deploy-root"})
+    @Option(name = {"-d", "--deploy-root"},
+            title = "path",
+            description = "Root path for deployments on target host",
+            configuration = "deploy_root")
     public String deployRoot = "/tmp/dwarf";
+
+    @Option(name={"-C", "--ssh-config"},
+            title="ssh_config file",
+            description="SSH config file to use",
+            configuration = "ssh_config")
+    public String sshConfig = null;
 
     @Option(name = "--name", title = "name")
     public String name = "Someone forgot to name me";
-
 
     @Option(name = "--host", required = true, type = OptionType.GLOBAL)
     public String host;
@@ -34,7 +46,15 @@ public class Deploy implements Callable<Void>
     public Void call() throws Exception
     {
         FileState state = new FileState(Paths.get(".dwarf"));
-        Dwarf d = new Dwarf(state, deployRoot);
+        Dwarf d = new Dwarf(state, deployRoot, Optional.fromNullable(sshConfig).transform(new Function<String, Path>()
+        {
+            @Override
+            public Path apply(@Nullable String input)
+            {
+                return Paths.get(input);
+            }
+        }));
+
         final String host = this.host;
 
         Host h = Iterables.find(d.getHosts(), new Predicate<Host>()
@@ -46,7 +66,7 @@ public class Deploy implements Callable<Void>
             }
         });
 
-        d.deploy(h, bundle , name);
+        d.deploy(h, bundle, name);
 
         return null;
     }

@@ -1,5 +1,6 @@
 package org.skife.galaxy.dwarf;
 
+import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -17,7 +18,8 @@ public class DeploymentTest
     public void testHappyPath() throws Exception
     {
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
-        Deployment d = Deployment.deploy(new Host("localhost"),
+        Deployment d = Deployment.deploy(Optional.<Path>absent(),
+                                         new Host("localhost"),
                                          tmpdir,
                                          Paths.get("src/test/resources/echo.tar.gz").toUri(),
                                          "test deployment");
@@ -35,7 +37,8 @@ public class DeploymentTest
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
 
         try {
-            Deployment d = Deployment.deploy(new Host("localhost"),
+            Deployment d = Deployment.deploy(Optional.<Path>absent(),
+                                             new Host("localhost"),
                                              tmpdir,
                                              Paths.get("i-do-not-exist").toUri(),
                                              "test deployment");
@@ -55,7 +58,8 @@ public class DeploymentTest
         }
 
         try {
-            Deployment.deploy(new Host("localhost"),
+            Deployment.deploy(Optional.<Path>absent(),
+                              new Host("localhost"),
                               tmpdir,
                               Paths.get("src/test/resources/malformed.tar.gz").toUri(),
                               "test deployment");
@@ -69,6 +73,47 @@ public class DeploymentTest
 
         FileHelper.deleteRecursively(tmpdir);
 
+    }
+
+    @Test
+    public void testStart() throws Exception
+    {
+        Path tmpdir = Files.createTempDirectory("dwarf-deploy");
+        Deployment d = Deployment.deploy(Optional.<Path>absent(),
+                                         new Host("localhost"),
+                                         tmpdir,
+                                         Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                         "test deployment");
+
+        d.start(Optional.<Path>absent());
+
+        Path pidish = tmpdir.resolve(d.getId().toString()).resolve("deploy/running");
+        assertThat(Files.exists(pidish)).isTrue();
+
+
+        FileHelper.deleteRecursively(tmpdir);
+
+    }
+
+    @Test
+    public void testStop() throws Exception
+    {
+        Path tmpdir = Files.createTempDirectory("dwarf-deploy");
+        Deployment d = Deployment.deploy(Optional.<Path>absent(),
+                                         new Host("localhost"),
+                                         tmpdir,
+                                         Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                         "test deployment");
+
+        d.start(Optional.<Path>absent());
+
+        Path pidish = tmpdir.resolve(d.getId().toString()).resolve("deploy/running");
+        assertThat(Files.exists(pidish)).isTrue();
+
+        d.stop(Optional.<Path>absent());
+        assertThat(Files.exists(pidish)).isFalse();
+
+        FileHelper.deleteRecursively(tmpdir);
     }
 
 
