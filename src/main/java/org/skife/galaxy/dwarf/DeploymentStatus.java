@@ -2,5 +2,5 @@ package org.skife.galaxy.dwarf;
 
 public enum DeploymentStatus
 {
-    Running, Stopped, Unknown
+    Running, Stopped, Dead, Unknown
 }

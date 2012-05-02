@@ -116,5 +116,26 @@ public class DeploymentTest
         FileHelper.deleteRecursively(tmpdir);
     }
 
+    @Test
+    public void testStatus() throws Exception
+    {
+        Path tmpdir = Files.createTempDirectory("dwarf-deploy");
+        Deployment d = Deployment.deploy(Optional.<Path>absent(),
+                                         new Host("localhost"),
+                                         tmpdir,
+                                         Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                         "test deployment");
+
+        d.start(Optional.<Path>absent());
+        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.Running);
+
+        d.stop(Optional.<Path>absent());
+        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.Stopped);
+
+
+        FileHelper.deleteRecursively(tmpdir);
+    }
+
+
 
 }

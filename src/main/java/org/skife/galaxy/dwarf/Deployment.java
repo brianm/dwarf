@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.skife.ssh.Muxer;
+import org.skife.ssh.ProcessResult;
 import org.skife.ssh.SSH;
 
 import java.io.IOException;
@@ -108,7 +109,7 @@ public class Deployment implements Comparable<Deployment>
 
     public void start(Optional<Path> sshConfig)
     {
-        try  {
+        try {
             SSH ssh = SSH.toHost(host);
             if (sshConfig.isPresent()) {
                 ssh = ssh.withConfigFile(sshConfig.get().toFile());
@@ -141,5 +142,34 @@ public class Deployment implements Comparable<Deployment>
             throw Throwables.propagate(e);
         }
 
+    }
+
+    public DeploymentStatus status(Optional<Path> sshConfig)
+    {
+        try {
+            SSH ssh = SSH.toHost(host);
+            if (sshConfig.isPresent()) {
+                ssh = ssh.withConfigFile(sshConfig.get().toFile());
+            }
+            Path control = Paths.get(directory).resolve("deploy").resolve("bin").resolve("control");
+            ProcessResult pr = ssh.exec(control.toString(), "status");
+
+            switch (pr.getExitCode()) {
+                case 0:
+                    return DeploymentStatus.Running;
+                case 1:
+                    return DeploymentStatus.Dead;
+                case 2:
+                    return DeploymentStatus.Dead;
+                case 3:
+                    return DeploymentStatus.Stopped;
+                default:
+                    return DeploymentStatus.Unknown;
+            }
+
+        }
+        catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
     }
 }
