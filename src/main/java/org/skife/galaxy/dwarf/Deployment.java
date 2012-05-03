@@ -156,15 +156,15 @@ public class Deployment implements Comparable<Deployment>
 
             switch (pr.getExitCode()) {
                 case 0:
-                    return DeploymentStatus.Running;
+                    return DeploymentStatus.running;
                 case 1:
-                    return DeploymentStatus.Dead;
+                    return DeploymentStatus.dead;
                 case 2:
-                    return DeploymentStatus.Dead;
+                    return DeploymentStatus.dead;
                 case 3:
-                    return DeploymentStatus.Stopped;
+                    return DeploymentStatus.stopped;
                 default:
-                    return DeploymentStatus.Unknown;
+                    return DeploymentStatus.unknown;
             }
 
         }

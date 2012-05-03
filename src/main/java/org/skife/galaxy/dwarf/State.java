@@ -1,9 +1,7 @@
 package org.skife.galaxy.dwarf;
 
-import org.skife.galaxy.dwarf.Deployment;
-import org.skife.galaxy.dwarf.Host;
-
 import java.util.Set;
+import java.util.UUID;
 
 public interface State
 {
@@ -13,6 +11,10 @@ public interface State
 
     public Set<Deployment> deployments();
 
-    public void add(Deployment d);
+    public void save(Deployment d);
 //    public void remove(Deployment d);
+
+    void saveDeploymentStatus(UUID deploymentId, DeploymentStatus status);
+
+    DeploymentStatus statusFor(UUID deploymentId);
 }

@@ -2,27 +2,23 @@ package org.skife.galaxy.dwarf.cli;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
-import org.skife.cli.OptionType;
 import org.skife.galaxy.dwarf.Deployment;
 import org.skife.galaxy.dwarf.Dwarf;
-import org.skife.galaxy.dwarf.Host;
 import org.skife.galaxy.dwarf.cli.util.DeploymentRenderer;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
 import javax.annotation.Nullable;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
-@Command(name = "deploy")
-public class Deploy implements Callable<Void>
+@Command(name="stop")
+public class Stop  implements Callable<Void>
 {
     @Option(name = {"-d", "--deploy-root"},
             title = "path",
@@ -30,20 +26,15 @@ public class Deploy implements Callable<Void>
             configuration = "deploy_root")
     public String deployRoot = "/tmp/dwarf";
 
-    @Option(name={"-C", "--ssh-config"},
-            title="ssh_config file",
-            description="SSH config file to use",
+
+    @Option(name = {"-C", "--ssh-config"},
+            title = "ssh_config file",
+            description = "SSH config file to use",
             configuration = "ssh_config")
     public String sshConfig = null;
 
-    @Option(name = "--name", title = "name")
-    public String name = "Someone forgot to name me";
-
-    @Option(name = "--host", required = true, type = OptionType.GLOBAL)
-    public String host;
-
-    @Arguments(title = "bundle-url", required = true)
-    public URI bundle;
+    @Arguments
+    Set<String> deps = Sets.newLinkedHashSet();
 
     @Override
     public Void call() throws Exception
@@ -58,21 +49,31 @@ public class Deploy implements Callable<Void>
             }
         }));
 
-        final String host = this.host;
+        Set<Deployment> all_deployments = d.getDeployments();
+        Set<Deployment> to_stop = Sets.newTreeSet();;
 
-        Host h = Iterables.find(d.getHosts(), new Predicate<Host>()
-        {
-            @Override
-            public boolean apply(Host input)
-            {
-                return input.getHostname().startsWith(host);
+        for (String dep : deps) {
+            Set<Deployment> local = Sets.newHashSet();
+            for (Deployment deployment : all_deployments) {
+                if (deployment.getId().toString().startsWith(dep)) {
+                    if (!local.add(deployment)) {
+                        System.err.printf("ERROR: deployment prefix %s matches more then one deployment\n", dep);
+                        Runtime.getRuntime().exit(1);
+                    }
+                    else {
+                        to_stop.add(deployment);
+                    }
+                }
             }
-        });
+        }
 
-        Deployment dep = d.deploy(h, bundle, name);
+        for (Deployment deployment : to_stop) {
+            d.stop(deployment);
+        }
 
-        new DeploymentRenderer(ImmutableSet.of(dep), state).renderTsv(System.out);
+        new DeploymentRenderer(to_stop, state).renderTsv(System.out);
 
         return null;
     }
+
 }

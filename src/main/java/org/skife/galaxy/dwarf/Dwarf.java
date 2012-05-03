@@ -31,9 +31,34 @@ public class Dwarf
         return state.hosts();
     }
 
-    public void deploy(Host h, URI bundle, String name) throws IOException
+    public Deployment deploy(Host h, URI bundle, String name) throws IOException
     {
         Deployment d = Deployment.deploy(sshConfig, h, Paths.get(deployRoot), bundle, name);
-        state.add(d);
+        state.save(d);
+        state.saveDeploymentStatus(d.getId(), DeploymentStatus.stopped);
+        return d;
+    }
+
+    public Set<Deployment> getDeployments() {
+        return state.deployments();
+    }
+
+    public void start(Deployment d)
+    {
+        d.start(sshConfig);
+        state.saveDeploymentStatus(d.getId(), DeploymentStatus.running);
+    }
+
+    public void stop(Deployment d)
+    {
+        d.stop(sshConfig);
+        state.saveDeploymentStatus(d.getId(), DeploymentStatus.stopped);
+    }
+
+    public DeploymentStatus status(Deployment d)
+    {
+        DeploymentStatus statsu = d.status(sshConfig);
+        state.saveDeploymentStatus(d.getId(), statsu);
+        return statsu;
     }
 }

@@ -18,6 +18,9 @@ public class Main
             .withDescription("A Small Galaxy Implementation")
             .withCommand(Deploy.class)
             .withCommand(Search.class)
+            .withCommand(Start.class)
+            .withCommand(Stop.class)
+            .withCommand(Refresh.class)
             .withCommand(Help.class)
             .withDefaultCommand(Help.class);
 

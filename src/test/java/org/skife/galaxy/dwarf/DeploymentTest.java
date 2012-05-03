@@ -127,11 +127,10 @@ public class DeploymentTest
                                          "test deployment");
 
         d.start(Optional.<Path>absent());
-        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.Running);
+        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.running);
 
         d.stop(Optional.<Path>absent());
-        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.Stopped);
-
+        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.stopped);
 
         FileHelper.deleteRecursively(tmpdir);
     }
