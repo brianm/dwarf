@@ -6,7 +6,7 @@ Dwarf is a very small Galaxy implementation which requires no installation on th
     dwarf host remove foo002
     dwarf host list
 
-    dwarf --host foo001 deploy http://repo.example.colo/echo-1.2.tar.gz --name "Echo 1.2"
+    dwarf deploy --host foo001 http://repo.example.colo/echo-1.2.tar.gz --name "Echo 1.2"
     dwarf start e12f
     dwarf stop e12f
     dwarf clear e12f

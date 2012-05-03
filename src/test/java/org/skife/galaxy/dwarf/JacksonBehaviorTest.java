@@ -6,14 +6,34 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.format.DataFormatDetector;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Charsets;
 import org.junit.Test;
+
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class JacksonBehaviorTest
 {
+
+    @Test
+    public void testFoo() throws Exception
+    {
+        Path deployments = Paths.get(".dwarf").resolve("deployments");
+        Reader sup = Files.newBufferedReader(deployments, Charsets.UTF_8);
+        List<Deployment> rs = new ObjectMapper().readValue(sup, new TypeReference<List<Deployment>>()
+        {
+        });
+        sup.close();
+    }
+
     @Test
     public void testBar() throws Exception
     {

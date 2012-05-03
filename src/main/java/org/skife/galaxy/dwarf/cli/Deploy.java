@@ -39,7 +39,7 @@ public class Deploy implements Callable<Void>
     @Option(name = "--name", title = "name")
     public String name = "Someone forgot to name me";
 
-    @Option(name = "--host", required = true, type = OptionType.GLOBAL)
+    @Option(name = "--host", required = true)
     public String host;
 
     @Arguments(title = "bundle-url", required = true)

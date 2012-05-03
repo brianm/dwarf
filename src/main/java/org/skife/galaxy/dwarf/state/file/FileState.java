@@ -28,7 +28,7 @@ import java.util.UUID;
 public class FileState implements State
 {
 
-    private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     private final Path dataDirectory;
 
@@ -102,12 +102,11 @@ public class FileState implements State
                 return Sets.newTreeSet();
             }
 
-            Reader sup = Files.newBufferedReader(deployments, Charsets.UTF_8);
-            Set<Deployment> rs = mapper.readValue(sup, new TypeReference<Set<Deployment>>()
-            {
-            });
-            sup.close();
-            return Sets.newTreeSet(rs);
+            try (Reader sup = Files.newBufferedReader(deployments, Charsets.UTF_8)) {
+                List<Deployment> rs = mapper.readValue(sup, new TypeReference<List<Deployment>>(){});
+                return Sets.newTreeSet(rs);
+            }
+
         }
         catch (IOException e) {
             throw Throwables.propagate(e);
