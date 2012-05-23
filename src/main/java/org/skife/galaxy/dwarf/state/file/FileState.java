@@ -49,7 +49,6 @@ public class FileState implements State
                 return Sets.newTreeSet();
             }
 
-
             Reader sup = Files.newBufferedReader(hosts, Charsets.UTF_8);
             Set<Host> rs = mapper.readValue(sup, new TypeReference<Set<Host>>()
             {

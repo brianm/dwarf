@@ -9,29 +9,63 @@ import com.fasterxml.jackson.core.format.DataFormatDetector;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.base.Charsets;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
+import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class JacksonBehaviorTest
+public class LibraryBehaviorTest
 {
+    @Test
+    public void testUriBehavior2() throws Exception
+    {
+        URI uri = new File(".").toURI().resolve(URI.create("http://skife.org/"));
+        assertThat(uri).isEqualTo(URI.create("http://skife.org/"));
+    }
+
 
     @Test
+    @Ignore("fails, jackson bug")
     public void testFoo() throws Exception
     {
-        Path deployments = Paths.get(".dwarf").resolve("deployments");
-        Reader sup = Files.newBufferedReader(deployments, Charsets.UTF_8);
-        List<Deployment> rs = new ObjectMapper().readValue(sup, new TypeReference<List<Deployment>>()
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+        String yaml = mapper.writeValueAsString(asList(new Foooo(UUID.randomUUID()),
+                                                       new Foooo(UUID.randomUUID()),
+                                                       new Foooo(UUID.randomUUID())));
+
+        mapper.readValue(yaml, new TypeReference<List<Foooo>>()
         {
         });
-        sup.close();
+    }
+
+    private static class Foooo
+    {
+
+        Foooo(@JsonProperty("id") UUID id)
+        {
+            this.id = id;
+        }
+
+        private final UUID id;
+
+        public UUID getId()
+        {
+            return id;
+        }
+    }
+
+
+    @Test
+    public void testBaggag() throws Exception
+    {
+        System.out.println(UUID.randomUUID());
     }
 
     @Test
