@@ -17,4 +17,6 @@ public interface State
     void saveDeploymentStatus(UUID deploymentId, DeploymentStatus status);
 
     DeploymentStatus statusFor(UUID deploymentId);
+
+    void remove(Deployment d);
 }

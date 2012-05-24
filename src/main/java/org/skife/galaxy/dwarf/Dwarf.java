@@ -49,6 +49,13 @@ public class Dwarf
         state.saveDeploymentStatus(d.getId(), DeploymentStatus.running);
     }
 
+    public void clear(Deployment d)
+    {
+        stop(d);
+        d.clear(sshConfig);
+        state.remove(d);
+    }
+
     public void stop(Deployment d)
     {
         d.stop(sshConfig);

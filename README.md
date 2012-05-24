@@ -1,4 +1,4 @@
-Dwarf is a very small Galaxy implementation which requires no installation on the appserver end.
+teDwarf is a very small Galaxy implementation which requires no installation on the appserver end.
 
     dwarf host add foo001.example.snv1
     dwarf host add foo002.example.snv1
@@ -27,7 +27,7 @@ Let's see where it goes.
 
 TODO
 - [ ] Host remove should warn if there are active deployments
-- [ ] Deployments
 - [ ] Search
 - [ ] Check (verifies state against reality)
 - [ ] Exec
+- [ ] BUG: need to eagerly consume stdout/stderr on remote commands

@@ -137,6 +137,40 @@ public class FileState implements State
     }
 
     @Override
+    public void remove(Deployment d)
+    {
+        Path status_path = dataDirectory.resolve("deployment_status");
+        Map<UUID, DeploymentStatus> stati = Maps.newHashMap();
+
+        try {
+            Splitter tab = Splitter.on("\t");
+            if (Files.exists(status_path)) {
+                for (String line : Files.readAllLines(status_path, Charsets.UTF_8)) {
+                    Iterator<String> bits = tab.split(line).iterator();
+                    stati.put(UUID.fromString(bits.next()), DeploymentStatus.valueOf(bits.next()));
+                }
+            }
+
+            Path tmp = Files.createTempFile("dwarf", "tmp");
+            stati.remove(d.getId());
+            List<String> lines = Lists.newArrayListWithExpectedSize(stati.size());
+            for (Map.Entry<UUID, DeploymentStatus> entry : stati.entrySet()) {
+                lines.add(entry.getKey().toString() + "\t" + entry.getValue().name());
+            }
+            Files.write(tmp, lines, Charsets.UTF_8);
+            Files.move(tmp, status_path, StandardCopyOption.REPLACE_EXISTING);
+
+            Set<Deployment> deploys = deployments();
+            deploys.remove(d);
+            _saveDeployments(deploys);
+
+        }
+        catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    @Override
     public synchronized void saveDeploymentStatus(UUID deploymentId, DeploymentStatus status)
     {
         Path status_path = dataDirectory.resolve("deployment_status");

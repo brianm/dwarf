@@ -20,6 +20,7 @@ public class Main
             .withCommand(Search.class)
             .withCommand(Start.class)
             .withCommand(Stop.class)
+            .withCommand(Clear.class)
             .withCommand(Refresh.class)
             .withCommand(Help.class)
             .withDefaultCommand(Help.class);

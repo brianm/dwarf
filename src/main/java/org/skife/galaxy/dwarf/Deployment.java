@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.skife.ssh.Muxer;
 import org.skife.ssh.ProcessResult;
 import org.skife.ssh.SSH;
@@ -22,7 +24,7 @@ import static com.google.common.io.CharStreams.readLines;
 
 public class Deployment implements Comparable<Deployment>
 {
-    private final UUID   id;
+    private final UUID id;
     private final String directory;
     private final String name;
     private final String host;
@@ -59,6 +61,18 @@ public class Deployment implements Comparable<Deployment>
         return host;
     }
 
+    @Override
+    public boolean equals(Object other)
+    {
+        return EqualsBuilder.reflectionEquals(this, other);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
     public static Deployment deploy(Optional<Path> sshConfig,
                                     Host host,
                                     Path rootOnHost,
@@ -84,7 +98,7 @@ public class Deployment implements Comparable<Deployment>
             ssh.scp(bundle_tmp.toFile(), work_dir.resolve("bundle.tar.gz").toFile()).errorUnlessExitIn(0);
             ssh.exec("mkdir", "-p", work_dir.resolve("expand").toString()).errorUnlessExitIn(0);
             ssh.exec("tar", "-C", work_dir.resolve("expand").toString(),
-                     "-zxvf", work_dir.resolve("bundle.tar.gz").toString()).errorUnlessExitIn(0);
+                     "-zxf", work_dir.resolve("bundle.tar.gz").toString()).errorUnlessExitIn(0);
 
             List<String> lines = readLines(ssh.exec("ls", work_dir.resolve("expand").toString())
                                               .errorUnlessExitIn(0)
@@ -141,7 +155,20 @@ public class Deployment implements Comparable<Deployment>
         catch (Exception e) {
             throw Throwables.propagate(e);
         }
+    }
 
+    public void clear(Optional<Path> sshConfig)
+    {
+        try {
+            SSH ssh = SSH.toHost(host);
+            if (sshConfig.isPresent()) {
+                ssh = ssh.withConfigFile(sshConfig.get().toFile());
+            }
+            ssh.exec("rm", "-rf", Paths.get(directory).toAbsolutePath().toString()).errorUnlessExitIn(0);
+        }
+        catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
     }
 
     public DeploymentStatus status(Optional<Path> sshConfig)
