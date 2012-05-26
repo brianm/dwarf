@@ -26,7 +26,7 @@ public class Main
             .withDefaultCommand(Help.class);
 
         builder.withGroup("host")
-            .withDescription("Operations on the hosts this darf mine knows about ;-)")
+            .withDescription("Operations on the hosts this dwtarf mine knows about ;-)")
             .withDefaultCommand(HostList.class)
             .withCommand(Help.class)
             .withCommand(HostList.class)
