@@ -26,6 +26,12 @@ public class Dwarf
         state.add(host);
     }
 
+    public void removeHost(Host host)
+    {
+        state.remove(host);
+    }
+
+
     public Set<Host> getHosts()
     {
         return state.hosts();

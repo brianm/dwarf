@@ -12,6 +12,7 @@ import org.skife.galaxy.dwarf.cli.util.DeploymentRenderer;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
@@ -20,7 +21,6 @@ import java.util.concurrent.Callable;
 @Command(name = "start")
 public class Start implements Callable<Void>
 {
-
     @Option(name = {"-d", "--deploy-root"},
             title = "path",
             description = "Root path for deployments on target host",

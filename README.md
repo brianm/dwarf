@@ -13,10 +13,10 @@ Commands:
     dwarf clear e12f
     dwarf list
 
+    dwarf host remove foo002
+
   TODO:
     dwarf search name =~ Echo.+
-
-    dwarf host remove foo002
 
     dwarf check        # implied all
     dwarf check foo001
@@ -30,6 +30,7 @@ Commands:
 Let's see where it goes.
 
 TODO
+- [ ] Add deployment configuration mechanism
 - [ ] BUG: need to eagerly consume stdout/stderr on remote commands
 - [ ] Host remove should warn if there are active deployments
 - [ ] Search

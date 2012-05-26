@@ -30,7 +30,8 @@ public class Main
             .withDefaultCommand(HostList.class)
             .withCommand(Help.class)
             .withCommand(HostList.class)
-            .withCommand(HostAdd.class);
+            .withCommand(HostAdd.class)
+            .withCommand(HostRemove.class);
 
         builder.build().parse(args).call();
     }
