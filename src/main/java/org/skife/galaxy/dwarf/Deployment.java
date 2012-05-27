@@ -113,8 +113,12 @@ public class Deployment implements Comparable<Deployment>
                      work_dir.resolve("expand").resolve(lines.get(0)).toString(),
                      work_dir.resolve("deploy").toString()).errorUnlessExitIn(0);
 
-            return new Deployment(id, work_dir.toString(), host.getHostname(), name);
+            // clean up empty expand directory
+            ssh.exec("rm", "-rf", work_dir.resolve("expand").toString());
 
+            // TODO store deployment state so it can be discovered
+
+            return new Deployment(id, work_dir.toString(), host.getHostname(), name);
         }
         catch (Exception e) {
             throw Throwables.propagate(e);
