@@ -2,6 +2,7 @@ Dwarf is a very small Galaxy implementation which requires no installation on th
 
 Commands:
   DONE:
+
     dwarf host add foo001.example.snv1
     dwarf host add foo002.example.snv1
     dwarf host add foo003.example.snv1 foo004.example.snv1
@@ -16,6 +17,7 @@ Commands:
     dwarf host remove foo002
 
   TODO:
+    
     dwarf search name =~ Echo.+
 
     dwarf check        # implied all
