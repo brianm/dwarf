@@ -38,7 +38,7 @@ Let's see where it goes.
 
 Deployment descriptors
 
-    bundle: http://repo.example.com/echo-{{version}}-{{arch}}.tar.gz
+    bundle: http://repo.example.com/echo-{version}-{arch}.tar.gz
     config:
       /env/waffles.conf : http://config/waffles.conf
       /env/pancakes.conf : http://config/yummy.properties
