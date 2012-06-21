@@ -32,7 +32,7 @@ Commands:
     dwarf deploy --host foo001 path/to/deployment_descriptor.yml arch=x64-linux version=1.2
     dwarf host set --host foo001 arch=x64-linux
     dwarf host get --host foo001 arch
-    dwarf host get foo001
+    dwarf host get --host foo001
 
 Let's see where it goes.
 
