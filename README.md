@@ -17,7 +17,7 @@ Commands:
     dwarf host remove foo002
 
   TODO:
-    
+
     dwarf search name =~ Echo.+
 
     dwarf check        # implied all
@@ -29,7 +29,19 @@ Commands:
     dwarf host lock foo003
     dwarf host unlock foo003
 
+    dwarf deploy --host foo001 path/to/deployment_descriptor.yml arch=x64-linux version=1.2
+    dwarf host set --host foo001 arch=x64-linux
+    dwarf host get --host foo001 arch
+    dwarf host get foo001
+
 Let's see where it goes.
+
+Deployment descriptors
+
+    bundle: http://repo.example.com/echo-{{version}}-{{arch}}.tar.gz
+    config:
+      /env/waffles.conf : http://config/waffles.conf
+      /env/pancakes.conf : http://config/yummy.properties
 
 TODO
 - [ ] Add deployment configuration mechanism
