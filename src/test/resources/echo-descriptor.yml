@@ -1,0 +1,4 @@
+name:   Echo Server
+bundle: src/test/resources/echo.tar.gz
+config:
+  /etc/runtime.properties : src/test/resources/runtime.properties

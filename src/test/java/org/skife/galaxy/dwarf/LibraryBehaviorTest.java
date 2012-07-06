@@ -7,14 +7,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.format.DataFormatDetector;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
@@ -156,4 +159,40 @@ public class LibraryBehaviorTest
     }
 
 
+    @Test
+    public void testDeserializeDeployDescriptorWithJackson() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        DD dd = mapper.readValue(new File("src/test/resources/echo-descriptor.yml"), DD.class);
+
+        assertThat(dd.bundle).isEqualTo(URI.create("src/test/resources/echo.tar.gz"));
+
+        Map<String, URI> config = ImmutableMap.of("/etc/runtime.properties",
+                                                  URI.create("src/test/resources/runtime.properties"));
+        assertThat(dd.config).isEqualTo(config);
+    }
+
+    public static class DD
+    {
+        private final URI bundle;
+        private final Map<String, URI> config;
+
+        public DD(@JsonProperty("bundle") URI bundle,
+                  @JsonProperty("config") Map<String, URI> config)
+        {
+            this.bundle = bundle;
+            this.config = config;
+        }
+
+        public URI getBundle()
+        {
+            return bundle;
+        }
+
+        public Map<String, URI> getConfig()
+        {
+            return config;
+        }
+    }
 }
