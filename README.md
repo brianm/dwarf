@@ -45,7 +45,6 @@ Deployment descriptors
 
 TODO
 - [ ] Add deployment configuration mechanism
-- [ ] BUG: need to eagerly consume stdout/stderr on remote commands
 - [ ] Host remove should warn if there are active deployments
 - [ ] Search
 - [ ] Check (verifies state against reality)
