@@ -38,7 +38,7 @@ public class Deploy implements Callable<Void>
     public String sshConfig = null;
 
     @Option(name = "--name", title = "name")
-    public Optional<String> name; // = "Someone forgot to name me";
+    public String name; // = "Someone forgot to name me";
 
     @Option(name = "--host", required = true)
     public String host;
@@ -76,7 +76,7 @@ public class Deploy implements Callable<Void>
 
         DeploymentInstructions dd = DeploymentInstructions.figureItOut(host,
                                                                        bundle,
-                                                                       name);
+                                                                       Optional.fromNullable(name));
 
 //        DeploymentDescriptor dd = new DeploymentDescriptor(host,
 //                                                           bundle,
