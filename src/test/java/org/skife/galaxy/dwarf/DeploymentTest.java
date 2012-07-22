@@ -1,6 +1,7 @@
 package org.skife.galaxy.dwarf;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -10,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -140,7 +142,7 @@ public class DeploymentTest
                                              "test deployment"));
 
         d.start(Optional.<Path>absent());
-        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.running);
+        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.running);             rt
 
         d.stop(Optional.<Path>absent());
         assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.stopped);
@@ -149,4 +151,21 @@ public class DeploymentTest
     }
 
 
+    @Test
+    public void testDeploymentWithConfig() throws Exception
+    {
+        Path tmpdir = Files.createTempDirectory("dwarf-deploy");
+        Map<Path, URI> config = ImmutableMap.of(Paths.get("/etc/runtime.properties"),
+                                                Paths.get("src/test/resources/runtime.properties").toUri());
+        Deployment d = Deployment.deploy(Optional.<Path>absent(),
+                                         tmpdir,
+                                         new DeploymentDescriptor(new Host("localhost"),
+                                                                  Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                                                  config,
+                                                                  "test deployment"));
+
+        Path cfg = Paths.get(d.getDirectory()).resolve("deploy/etc/runtime.properties");
+        assertThat(Files.exists(cfg)).isTrue();
+
+    }
 }

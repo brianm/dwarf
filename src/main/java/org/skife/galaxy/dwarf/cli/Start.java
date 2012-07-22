@@ -12,7 +12,6 @@ import org.skife.galaxy.dwarf.cli.util.DeploymentRenderer;
 import org.skife.galaxy.dwarf.state.file.FileState;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;

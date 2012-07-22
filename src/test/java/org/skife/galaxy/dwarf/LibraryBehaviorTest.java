@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +27,15 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class LibraryBehaviorTest
 {
+
+    @Test
+    public void testPathsResolveAsDesired() throws Exception
+    {
+        Path full = Paths.get("/waffles/pancakes").resolve(Paths.get("sausage/bacon")).normalize();
+        Path desired = Paths.get("/waffles/pancakes/sausage/bacon");
+        assertThat((Object)full).isEqualTo(desired);
+    }
+
     @Test
     public void testUriBehavior2() throws Exception
     {
@@ -175,7 +186,7 @@ public class LibraryBehaviorTest
 
     public static class DD
     {
-        private final URI bundle;
+        private final URI              bundle;
         private final Map<String, URI> config;
 
         public DD(@JsonProperty("bundle") URI bundle,

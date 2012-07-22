@@ -11,12 +11,9 @@ import org.skife.ssh.ProcessResult;
 import org.skife.ssh.SSH;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -80,10 +77,7 @@ public class Deployment implements Comparable<Deployment>
     {
         UUID id = UUID.randomUUID();
 
-        Path bundle_tmp = Files.createTempFile("bundle", ".tmp");
-        try (InputStream in = descriptor.getBundle().toURL().openStream()) {
-            Files.copy(in, bundle_tmp, StandardCopyOption.REPLACE_EXISTING);
-        }
+        Path bundle = UriBox.copyLocally(descriptor.getBundle());
 
         try (Muxer m = Muxer.withSocketsInTempDir()) {
             final Path work_dir = rootOnHost.resolve(id.toString());
@@ -93,13 +87,14 @@ public class Deployment implements Comparable<Deployment>
                 ssh = ssh.withConfigFile(sshConfig.get().toFile());
             }
 
+            Path expanded = work_dir.resolve("expand");
             ssh.exec("mkdir", "-p", work_dir.toString()).errorUnlessExitIn(0);
-            ssh.scp(bundle_tmp.toFile(), work_dir.resolve("bundle.tar.gz").toFile()).errorUnlessExitIn(0);
-            ssh.exec("mkdir", "-p", work_dir.resolve("expand").toString()).errorUnlessExitIn(0);
-            ssh.exec("tar", "-C", work_dir.resolve("expand").toString(),
+            ssh.scp(bundle.toFile(), work_dir.resolve("bundle.tar.gz").toFile()).errorUnlessExitIn(0);
+            ssh.exec("mkdir", "-p", expanded.toString()).errorUnlessExitIn(0);
+            ssh.exec("tar", "-C", expanded.toString(),
                      "-zxf", work_dir.resolve("bundle.tar.gz").toString()).errorUnlessExitIn(0);
 
-            List<String> lines = readLines(ssh.exec("ls", work_dir.resolve("expand").toString())
+            List<String> lines = readLines(ssh.exec("ls", expanded.toString())
                                               .errorUnlessExitIn(0)
                                               .getStdoutSupplier());
             if (lines.size() != 1) {
@@ -108,16 +103,39 @@ public class Deployment implements Comparable<Deployment>
                 throw new IllegalStateException("Bundle " + descriptor.getBundle() +
                                                 " had too many files " + lines.toString() + " in root");
             }
+
+            Path app_root = expanded.resolve(lines.get(0));
+
+            // copy config files into the right place
+            for (Map.Entry<Path, URI> entry : descriptor.getConfig().entrySet()) {
+                Path local = UriBox.copyLocally(entry.getValue());
+                Path remote = app_root.resolve(
+                    entry.getKey().startsWith("/") ? Paths.get("." + entry.getKey()) : entry.getKey()
+                );
+
+                // if the dir in which to put the foncig does not exist, make it
+                Path remote_parent = remote.getParent();
+                int parent_exists = ssh.exec("test", "-d", remote_parent.toString()).getExitCode();
+                if (parent_exists != 0) {
+                    ssh.exec("mkdir",  "-p", remote_parent.toString());
+                }
+
+                ssh.scp(local.toFile(), remote.toFile()).errorUnlessExitIn(0);
+            }
+
             ssh.exec("mv",
                      work_dir.resolve("expand").resolve(lines.get(0)).toString(),
                      work_dir.resolve("deploy").toString()).errorUnlessExitIn(0);
 
-            // clean up empty expand directory
-            ssh.exec("rm", "-rf", work_dir.resolve("expand").toString());
+            // clean up lingering expansion directory
+            ssh.exec("rm", "-rf", expanded.toString());
 
             // TODO store deployment state so it can be discovered
 
-            return new Deployment(id, work_dir.toString(), descriptor.getHost().getHostname(), descriptor.getName());
+            return new Deployment(id,
+                                  work_dir.toString(),
+                                  descriptor.getHost().getHostname(),
+                                  descriptor.getName());
         }
         catch (Exception e) {
             throw Throwables.propagate(e);

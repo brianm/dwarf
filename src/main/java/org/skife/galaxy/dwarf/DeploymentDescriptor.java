@@ -29,7 +29,7 @@ public class DeploymentDescriptor
         return bundle;
     }
 
-    public Map<Path, URI> getPathURIMap()
+    public Map<Path, URI> getConfig()
     {
         return pathURIMap;
     }
