@@ -29,6 +29,20 @@ public class DeploymentInstructionsTest
         URI yaml = Paths.get("src/test/resources/echo-descriptor.yml").toUri();
         DeploymentInstructions dd = DeploymentInstructions.figureItOut(new Host("localhost"),
                                                                        yaml,
+                                                                       Optional.<String>absent());
+        assertThat(dd.getName()).isEqualTo("Echo Server");
+        assertThat(UriBox.BASE.resolve(dd.getBundle())).isEqualTo(bundle);
+        assertThat(dd.getConfig()).isEqualTo(ImmutableMap.of(Paths.get("/etc/runtime.properties"),
+                                                             yaml.resolve(new URI("runtime.properties"))));
+    }
+
+    @Test
+    public void testFigureItOutWithYamlOverrideName() throws Exception
+    {
+        URI bundle = Paths.get("src/test/resources/echo.tar.gz").toUri();
+        URI yaml = Paths.get("src/test/resources/echo-descriptor.yml").toUri();
+        DeploymentInstructions dd = DeploymentInstructions.figureItOut(new Host("localhost"),
+                                                                       yaml,
                                                                        Optional.of("thingamajig"));
         assertThat(dd.getName()).isEqualTo("thingamajig");
         assertThat(UriBox.BASE.resolve(dd.getBundle())).isEqualTo(bundle);
