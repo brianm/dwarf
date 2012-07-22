@@ -73,7 +73,7 @@ public class Deployment implements Comparable<Deployment>
 
     public static Deployment deploy(Optional<Path> sshConfig,
                                     Path rootOnHost,
-                                    DeploymentDescriptor descriptor) throws IOException
+                                    DeploymentInstructions descriptor) throws IOException
     {
         UUID id = UUID.randomUUID();
 

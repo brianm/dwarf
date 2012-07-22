@@ -9,7 +9,7 @@ import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
 import org.skife.galaxy.dwarf.Deployment;
-import org.skife.galaxy.dwarf.DeploymentDescriptor;
+import org.skife.galaxy.dwarf.DeploymentInstructions;
 import org.skife.galaxy.dwarf.Dwarf;
 import org.skife.galaxy.dwarf.Host;
 import org.skife.galaxy.dwarf.cli.util.DeploymentRenderer;
@@ -20,7 +20,6 @@ import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.concurrent.Callable;
 
 @Command(name = "deploy")
@@ -39,7 +38,7 @@ public class Deploy implements Callable<Void>
     public String sshConfig = null;
 
     @Option(name = "--name", title = "name")
-    public String name = "Someone forgot to name me";
+    public Optional<String> name; // = "Someone forgot to name me";
 
     @Option(name = "--host", required = true)
     public String host;
@@ -75,10 +74,14 @@ public class Deploy implements Callable<Void>
         });
 
 
-        DeploymentDescriptor dd = new DeploymentDescriptor(host,
-                                                           bundle,
-                                                           Collections.<Path, URI>emptyMap(),
-                                                           name);
+        DeploymentInstructions dd = DeploymentInstructions.figureItOut(host,
+                                                                       bundle,
+                                                                       name);
+
+//        DeploymentDescriptor dd = new DeploymentDescriptor(host,
+//                                                           bundle,
+//                                                           Collections.<Path, URI>emptyMap(),
+//                                                           name.get());
 
 
         Deployment dep = d.deploy(dd);

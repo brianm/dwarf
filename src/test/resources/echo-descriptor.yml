@@ -1,4 +1,4 @@
 name:   Echo Server
-bundle: src/test/resources/echo.tar.gz
+bundle: echo.tar.gz
 config:
-  /etc/runtime.properties : src/test/resources/runtime.properties
+  /etc/runtime.properties : runtime.properties

@@ -24,7 +24,7 @@ public class DeploymentTest
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
                                          tmpdir,
-                                         new DeploymentDescriptor(new Host("localhost"),
+                                         new DeploymentInstructions(new Host("localhost"),
                                                                   Paths.get("src/test/resources/echo.tar.gz").toUri(),
                                                                   Collections.<Path, URI>emptyMap(),
                                                                   "test deployment"));
@@ -44,7 +44,7 @@ public class DeploymentTest
         try {
             Deployment d = Deployment.deploy(Optional.<Path>absent(),
                                              tmpdir,
-                                             new DeploymentDescriptor(
+                                             new DeploymentInstructions(
                                                  new Host("localhost"),
                                                  Paths.get("i-do-not-exist").toUri(),
                                                  Collections.<Path, URI>emptyMap(),
@@ -67,7 +67,7 @@ public class DeploymentTest
         try {
             Deployment.deploy(Optional.<Path>absent(),
                               tmpdir,
-                              new DeploymentDescriptor(
+                              new DeploymentInstructions(
                                   new Host("localhost"),
                                   Paths.get("src/test/resources/malformed.tar.gz").toUri(),
                                   Collections.<Path, URI>emptyMap(),
@@ -90,7 +90,7 @@ public class DeploymentTest
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
                                          tmpdir,
-                                         new DeploymentDescriptor(
+                                         new DeploymentInstructions(
                                              new Host("localhost"),
                                              Paths.get("src/test/resources/echo.tar.gz").toUri(),
                                              Collections.<Path, URI>emptyMap(),
@@ -112,7 +112,7 @@ public class DeploymentTest
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
                                          tmpdir,
-                                         new DeploymentDescriptor(
+                                         new DeploymentInstructions(
                                              new Host("localhost"),
                                              Paths.get("src/test/resources/echo.tar.gz").toUri(),
                                              Collections.<Path, URI>emptyMap(),
@@ -135,7 +135,7 @@ public class DeploymentTest
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
                                          tmpdir,
-                                         new DeploymentDescriptor(
+                                         new DeploymentInstructions(
                                              new Host("localhost"),
                                              Paths.get("src/test/resources/echo.tar.gz").toUri(),
                                              Collections.<Path, URI>emptyMap(),
@@ -159,13 +159,12 @@ public class DeploymentTest
                                                 Paths.get("src/test/resources/runtime.properties").toUri());
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
                                          tmpdir,
-                                         new DeploymentDescriptor(new Host("localhost"),
+                                         new DeploymentInstructions(new Host("localhost"),
                                                                   Paths.get("src/test/resources/echo.tar.gz").toUri(),
                                                                   config,
                                                                   "test deployment"));
 
         Path cfg = Paths.get(d.getDirectory()).resolve("deploy/etc/runtime.properties");
         assertThat(Files.exists(cfg)).isTrue();
-
     }
 }

@@ -1,27 +1,28 @@
 package org.skife.galaxy.dwarf;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class DeploymentDescriptor
 {
-    private final Host host;
-    private final URI bundle;
-    private final Map<Path, URI> pathURIMap;
-    private final String name;
+    private final URI              bundle;
+    private final String           name;
+    private final Map<String, URI> config;
 
-    public DeploymentDescriptor(Host host, URI bundle, Map<Path, URI> pathURIMap, String name)
+    @JsonCreator
+    public DeploymentDescriptor(@JsonProperty("bundle") URI bundle,
+                                @JsonProperty("name") String name,
+                                @JsonProperty("config") Map<String, URI> config)
     {
-        this.host = host;
         this.bundle = bundle;
-        this.pathURIMap = pathURIMap;
         this.name = name;
-    }
-
-    public Host getHost()
-    {
-        return host;
+        this.config = config;
     }
 
     public URI getBundle()
@@ -29,9 +30,13 @@ public class DeploymentDescriptor
         return bundle;
     }
 
-    public Map<Path, URI> getConfig()
+    public Map<Path, URI> getConfig(URI baseUri)
     {
-        return pathURIMap;
+        ImmutableMap.Builder<Path, URI> builder = ImmutableMap.builder();
+        for (Map.Entry<String, URI> entry : config.entrySet()) {
+            builder.put(Paths.get(entry.getKey()), baseUri.resolve(entry.getValue()));
+        }
+        return builder.build();
     }
 
     public String getName()

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.format.DataFormatDetector;
+import com.fasterxml.jackson.core.format.DataFormatMatcher;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +16,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -75,18 +78,9 @@ public class LibraryBehaviorTest
         }
     }
 
-
-    @Test
-    public void testBaggag() throws Exception
-    {
-        System.out.println(UUID.randomUUID());
-    }
-
     @Test
     public void testBar() throws Exception
     {
-        DataFormatDetector det = new DataFormatDetector(new JsonFactory(),
-                                                        new YAMLFactory());
         ObjectMapper mapper = new ObjectMapper(new JsonFactory());
 
         C c = mapper.readValue("{\"foo\":{\n\"type\":\"bar\",\"say\":\"hello\"}}", C.class);
@@ -94,7 +88,6 @@ public class LibraryBehaviorTest
         assertThat(c.foo).isInstanceOf(FooBar.class);
         assertThat(c.foo.yarp()).isEqualTo("hello");
     }
-
 
     @Test
     public void testYaml() throws Exception
@@ -177,10 +170,10 @@ public class LibraryBehaviorTest
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         DD dd = mapper.readValue(new File("src/test/resources/echo-descriptor.yml"), DD.class);
 
-        assertThat(dd.bundle).isEqualTo(URI.create("src/test/resources/echo.tar.gz"));
+        assertThat(dd.bundle).isEqualTo(URI.create("echo.tar.gz"));
 
         Map<String, URI> config = ImmutableMap.of("/etc/runtime.properties",
-                                                  URI.create("src/test/resources/runtime.properties"));
+                                                  URI.create("runtime.properties"));
         assertThat(dd.config).isEqualTo(config);
     }
 
