@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.format.DataFormatDetector;
-import com.fasterxml.jackson.core.format.DataFormatMatcher;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,11 +14,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +33,7 @@ public class LibraryBehaviorTest
     {
         Path full = Paths.get("/waffles/pancakes").resolve(Paths.get("sausage/bacon")).normalize();
         Path desired = Paths.get("/waffles/pancakes/sausage/bacon");
-        assertThat((Object)full).isEqualTo(desired);
+        assertThat((Object) full).isEqualTo(desired);
     }
 
     @Test
@@ -198,5 +195,28 @@ public class LibraryBehaviorTest
         {
             return config;
         }
+    }
+
+    @Test
+    public void testTemplateStuff() throws Exception
+    {
+        TemplateParser p = new TemplateParser();
+        String rs = p.parse("hello ${ name }", TemplateParser.createResolver(ImmutableMap.of("name", "world")));
+        assertThat(rs).isEqualTo("hello world");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testTemplateStuffMissing() throws Exception
+    {
+        TemplateParser p = new TemplateParser();
+        p.parse("hello ${ name }", TemplateParser.createResolver(Collections.emptyMap()));
+    }
+
+    @Test
+    public void testTemplateStuffWithDefault() throws Exception
+    {
+        TemplateParser p = new TemplateParser();
+        String rs = p.parse("hello ${ name | world }", TemplateParser.createResolver(Collections.emptyMap()));
+        assertThat(rs).isEqualTo("hello world");
     }
 }

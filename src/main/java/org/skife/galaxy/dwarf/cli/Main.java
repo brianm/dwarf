@@ -26,13 +26,19 @@ public class Main
             .withDefaultCommand(Help.class);
 
         builder.withGroup("host")
-            .withDescription("Operations on the hosts this dwtarf mine knows about ;-)")
-            .withDefaultCommand(HostList.class)
-            .withCommand(Help.class)
-            .withCommand(HostList.class)
-            .withCommand(HostAdd.class)
-            .withCommand(HostRemove.class);
+               .withDescription("Operations on the hosts this dwarf mine knows about ;-)")
+               .withDefaultCommand(HostList.class)
+               .withCommand(Help.class)
+               .withCommand(HostList.class)
+               .withCommand(HostAdd.class)
+               .withCommand(HostRemove.class);
 
-        builder.build().parse(args).call();
+        try {
+            builder.build().parse(args).call();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+            Runtime.getRuntime().exit(1);
+        }
     }
 }

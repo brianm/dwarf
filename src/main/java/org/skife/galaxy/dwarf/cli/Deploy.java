@@ -3,8 +3,11 @@ package org.skife.galaxy.dwarf.cli;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
@@ -20,6 +23,9 @@ import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 @Command(name = "deploy")
@@ -45,6 +51,9 @@ public class Deploy implements Callable<Void>
 
     @Arguments(title = "uri", required = true)
     public URI bundle;
+
+    @Option(name = {"--property", "-p"})
+    public List<String> pairs = Lists.newArrayList();
 
     @Override
     public Void call() throws Exception
@@ -73,10 +82,17 @@ public class Deploy implements Callable<Void>
             }
         });
 
+        Map<String, String> props = Maps.newLinkedHashMap();
+        Splitter eqs = Splitter.on("=").trimResults();
+        for (String pair : pairs) {
+            Iterator<String> it = eqs.split(pair).iterator();
+            props.put(it.next(), it.next());
+        }
 
         DeploymentInstructions dd = DeploymentInstructions.figureItOut(host,
                                                                        bundle,
-                                                                       Optional.fromNullable(name));
+                                                                       Optional.fromNullable(name),
+                                                                       props);
 
 //        DeploymentDescriptor dd = new DeploymentDescriptor(host,
 //                                                           bundle,

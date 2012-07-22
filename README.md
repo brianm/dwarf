@@ -15,10 +15,10 @@ Commands:
     dwarf list
 
     dwarf host remove foo002
+    dwarf deploy --host foo001 path/to/deployment_descriptor.yml
+    dwarf deploy --host foo001 path/to/deployment_descriptor_template.yml -p arch=x64-linux -p version=1.2
 
   TODO:
-
-    dwarf deploy --host foo001 path/to/deployment_descriptor.yml arch=x64-linux version=1.2
 
     dwarf search name =~ Echo.+
 

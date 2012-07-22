@@ -2,7 +2,10 @@ package org.skife.galaxy.dwarf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +53,8 @@ public class DeploymentInstructions
 
     public static DeploymentInstructions figureItOut(Host host,
                                                      URI uriForSomething,
-                                                     Optional<String> name) throws IOException
+                                                     Optional<String> name,
+                                                     Map<String, String> props) throws IOException
     {
         Path thing = UriBox.copyLocally(uriForSomething);
 
@@ -64,8 +68,11 @@ public class DeploymentInstructions
 
         if (yaml) {
             try (InputStream in = Files.newInputStream(thing)) {
+                String yml_raw = new String(ByteStreams.toByteArray(in), Charsets.UTF_8);
+                String yml = new TemplateParser().parse(yml_raw, TemplateParser.createResolver(uriForSomething.toString(),
+                                                                                               props));
                 ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-                DeploymentDescriptor dd = mapper.readValue(in, DeploymentDescriptor.class);
+                DeploymentDescriptor dd = mapper.readValue(yml, DeploymentDescriptor.class);
                 return new DeploymentInstructions(host,
                                                   uriForSomething.resolve(dd.getBundle()),
                                                   dd.getConfig(uriForSomething),
