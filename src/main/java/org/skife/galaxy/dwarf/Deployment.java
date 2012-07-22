@@ -18,13 +18,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.google.common.io.CharStreams.readLines;
 
 public class Deployment implements Comparable<Deployment>
 {
-    private final UUID id;
+    private final UUID   id;
     private final String directory;
     private final String name;
     private final String host;
@@ -74,22 +75,20 @@ public class Deployment implements Comparable<Deployment>
     }
 
     public static Deployment deploy(Optional<Path> sshConfig,
-                                    Host host,
                                     Path rootOnHost,
-                                    URI bundle,
-                                    String name) throws IOException
+                                    DeploymentDescriptor descriptor) throws IOException
     {
         UUID id = UUID.randomUUID();
 
         Path bundle_tmp = Files.createTempFile("bundle", ".tmp");
-        try (InputStream in = bundle.toURL().openStream()) {
+        try (InputStream in = descriptor.getBundle().toURL().openStream()) {
             Files.copy(in, bundle_tmp, StandardCopyOption.REPLACE_EXISTING);
         }
 
         try (Muxer m = Muxer.withSocketsInTempDir()) {
             final Path work_dir = rootOnHost.resolve(id.toString());
 
-            SSH ssh = m.connect(host.getHostname());
+            SSH ssh = m.connect(descriptor.getHost().getHostname());
             if (sshConfig.isPresent()) {
                 ssh = ssh.withConfigFile(sshConfig.get().toFile());
             }
@@ -106,7 +105,7 @@ public class Deployment implements Comparable<Deployment>
             if (lines.size() != 1) {
                 // grotty tarball, more then one dir at root, cleanup and fail
                 ssh.exec("rm", "-rf", work_dir.toString()).errorUnlessExitIn(0);
-                throw new IllegalStateException("Bundle " + bundle +
+                throw new IllegalStateException("Bundle " + descriptor.getBundle() +
                                                 " had too many files " + lines.toString() + " in root");
             }
             ssh.exec("mv",
@@ -118,7 +117,7 @@ public class Deployment implements Comparable<Deployment>
 
             // TODO store deployment state so it can be discovered
 
-            return new Deployment(id, work_dir.toString(), host.getHostname(), name);
+            return new Deployment(id, work_dir.toString(), descriptor.getHost().getHostname(), descriptor.getName());
         }
         catch (Exception e) {
             throw Throwables.propagate(e);

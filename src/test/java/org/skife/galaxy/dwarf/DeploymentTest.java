@@ -4,10 +4,12 @@ import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
+import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -19,10 +21,11 @@ public class DeploymentTest
     {
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
-                                         new Host("localhost"),
                                          tmpdir,
-                                         Paths.get("src/test/resources/echo.tar.gz").toUri(),
-                                         "test deployment");
+                                         new DeploymentDescriptor(new Host("localhost"),
+                                                                  Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                                                  Collections.<Path, URI>emptyMap(),
+                                                                  "test deployment"));
 
         Path control = tmpdir.resolve(d.getId().toString()).resolve("deploy").resolve("bin").resolve("control");
 
@@ -38,10 +41,12 @@ public class DeploymentTest
 
         try {
             Deployment d = Deployment.deploy(Optional.<Path>absent(),
-                                             new Host("localhost"),
                                              tmpdir,
-                                             Paths.get("i-do-not-exist").toUri(),
-                                             "test deployment");
+                                             new DeploymentDescriptor(
+                                                 new Host("localhost"),
+                                                 Paths.get("i-do-not-exist").toUri(),
+                                                 Collections.<Path, URI>emptyMap(),
+                                                 "test deployment"));
 
         }
         finally {
@@ -59,10 +64,12 @@ public class DeploymentTest
 
         try {
             Deployment.deploy(Optional.<Path>absent(),
-                              new Host("localhost"),
                               tmpdir,
-                              Paths.get("src/test/resources/malformed.tar.gz").toUri(),
-                              "test deployment");
+                              new DeploymentDescriptor(
+                                  new Host("localhost"),
+                                  Paths.get("src/test/resources/malformed.tar.gz").toUri(),
+                                  Collections.<Path, URI>emptyMap(),
+                                  "test deployment"));
             fail("should have raised an exception");
         }
         catch (Exception e) {
@@ -80,10 +87,12 @@ public class DeploymentTest
     {
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
-                                         new Host("localhost"),
                                          tmpdir,
-                                         Paths.get("src/test/resources/echo.tar.gz").toUri(),
-                                         "test deployment");
+                                         new DeploymentDescriptor(
+                                             new Host("localhost"),
+                                             Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                             Collections.<Path, URI>emptyMap(),
+                                             "test deployment"));
 
         d.start(Optional.<Path>absent());
 
@@ -100,10 +109,12 @@ public class DeploymentTest
     {
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
-                                         new Host("localhost"),
                                          tmpdir,
-                                         Paths.get("src/test/resources/echo.tar.gz").toUri(),
-                                         "test deployment");
+                                         new DeploymentDescriptor(
+                                             new Host("localhost"),
+                                             Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                             Collections.<Path, URI>emptyMap(),
+                                             "test deployment"));
 
         d.start(Optional.<Path>absent());
 
@@ -121,10 +132,12 @@ public class DeploymentTest
     {
         Path tmpdir = Files.createTempDirectory("dwarf-deploy");
         Deployment d = Deployment.deploy(Optional.<Path>absent(),
-                                         new Host("localhost"),
                                          tmpdir,
-                                         Paths.get("src/test/resources/echo.tar.gz").toUri(),
-                                         "test deployment");
+                                         new DeploymentDescriptor(
+                                             new Host("localhost"),
+                                             Paths.get("src/test/resources/echo.tar.gz").toUri(),
+                                             Collections.<Path, URI>emptyMap(),
+                                             "test deployment"));
 
         d.start(Optional.<Path>absent());
         assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.running);
@@ -134,7 +147,6 @@ public class DeploymentTest
 
         FileHelper.deleteRecursively(tmpdir);
     }
-
 
 
 }

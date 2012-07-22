@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Set;
 
 public class Dwarf
@@ -37,9 +38,11 @@ public class Dwarf
         return state.hosts();
     }
 
-    public Deployment deploy(Host h, URI bundle, String name) throws IOException
+    public Deployment deploy(DeploymentDescriptor descriptor) throws IOException
     {
-        Deployment d = Deployment.deploy(sshConfig, h, Paths.get(deployRoot), bundle, name);
+        Deployment d = Deployment.deploy(sshConfig,
+                                         Paths.get(deployRoot),
+                                         descriptor);
         state.save(d);
         state.saveDeploymentStatus(d.getId(), DeploymentStatus.stopped);
         return d;

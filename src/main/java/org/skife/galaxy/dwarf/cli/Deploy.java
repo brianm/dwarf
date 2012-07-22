@@ -5,11 +5,13 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.sun.xml.internal.ws.transport.http.DeploymentDescriptorParser;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
 import org.skife.cli.OptionType;
 import org.skife.galaxy.dwarf.Deployment;
+import org.skife.galaxy.dwarf.DeploymentDescriptor;
 import org.skife.galaxy.dwarf.Dwarf;
 import org.skife.galaxy.dwarf.Host;
 import org.skife.galaxy.dwarf.cli.util.DeploymentRenderer;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.concurrent.Callable;
 
 @Command(name = "deploy")
@@ -31,9 +34,9 @@ public class Deploy implements Callable<Void>
             configuration = "deploy_root")
     public String deployRoot = "/tmp/dwarf";
 
-    @Option(name={"-C", "--ssh-config"},
-            title="ssh_config file",
-            description="SSH config file to use",
+    @Option(name = {"-C", "--ssh-config"},
+            title = "ssh_config file",
+            description = "SSH config file to use",
             configuration = "ssh_config")
     public String sshConfig = null;
 
@@ -43,7 +46,7 @@ public class Deploy implements Callable<Void>
     @Option(name = "--host", required = true)
     public String host;
 
-    @Arguments(title = "bundle-url", required = true)
+    @Arguments(title = "uri", required = true)
     public URI bundle;
 
     @Override
@@ -62,18 +65,25 @@ public class Deploy implements Callable<Void>
             }
         }));
 
-        final String host = this.host;
+        final String hostPrefix = this.host;
 
-        Host h = Iterables.find(d.getHosts(), new Predicate<Host>()
+        Host host = Iterables.find(d.getHosts(), new Predicate<Host>()
         {
             @Override
             public boolean apply(Host input)
             {
-                return input.getHostname().startsWith(host);
+                return input.getHostname().startsWith(hostPrefix);
             }
         });
 
-        Deployment dep = d.deploy(h, bundle, name);
+
+        DeploymentDescriptor dd = new DeploymentDescriptor(host,
+                                                           bundle,
+                                                           Collections.<Path, URI>emptyMap(),
+                                                           name);
+
+
+        Deployment dep = d.deploy(dd);
 
         new DeploymentRenderer(ImmutableSet.of(dep), state).renderTsv(System.out);
 
