@@ -142,7 +142,7 @@ public class DeploymentTest
                                              "test deployment"));
 
         d.start(Optional.<Path>absent());
-        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.running);             rt
+        assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.running);
 
         d.stop(Optional.<Path>absent());
         assertThat(d.status(Optional.<Path>absent())).isEqualTo(DeploymentStatus.stopped);
