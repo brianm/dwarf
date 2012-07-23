@@ -16,7 +16,7 @@ Commands:
 
     dwarf host remove foo002
     dwarf deploy --host foo001 path/to/deployment_descriptor.yml
-    dwarf deploy --host foo001 path/to/deployment_descriptor_template.yml -p arch=x64-linux -p version=1.2
+    dwarf deploy --host foo001 path/to/deployment_descriptor_template.yml -t arch=x64-linux -t version=1.2
 
   TODO:
 
@@ -46,7 +46,6 @@ Deployment descriptors
       /env/pancakes.conf : http://config/yummy.properties
 
 TODO
-- [ ] Add deployment configuration mechanism
 - [ ] Host remove should warn if there are active deployments
 - [ ] Search
 - [ ] Check (verifies state against reality)

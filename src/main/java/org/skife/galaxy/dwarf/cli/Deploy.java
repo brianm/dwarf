@@ -52,7 +52,7 @@ public class Deploy implements Callable<Void>
     @Arguments(title = "uri", required = true)
     public URI bundle;
 
-    @Option(name = {"--property", "-p"})
+    @Option(name = {"--template-var", "-t"})
     public List<String> pairs = Lists.newArrayList();
 
     @Override
