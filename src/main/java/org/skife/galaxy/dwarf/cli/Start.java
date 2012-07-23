@@ -71,7 +71,7 @@ public class Start implements Callable<Void>
             d.start(deployment);
         }
 
-        new DeploymentRenderer(to_start, state).renderTsv(System.out);
+        new DeploymentRenderer(to_start, state).render();
 
         return null;
     }

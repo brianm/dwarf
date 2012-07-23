@@ -1,6 +1,5 @@
 package org.skife.galaxy.dwarf.cli;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -19,8 +18,6 @@ import java.util.concurrent.Callable;
 @Command(name = {"search", "list", "find", "ls"})
 public class Search implements Callable<Void>
 {
-    private static final ObjectMapper mapper = new ObjectMapper();
-
     @Arguments
     public List<String> args = Lists.newArrayList();
 
@@ -31,7 +28,7 @@ public class Search implements Callable<Void>
 
         if (args.isEmpty()) {
             // show all
-            new DeploymentRenderer(state.deployments(), state).renderTsv(System.out);
+            new DeploymentRenderer(state.deployments(), state).render();
         }
         else {
             throw new UnsupportedOperationException("Not Yet Implemented!");

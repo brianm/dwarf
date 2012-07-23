@@ -70,7 +70,7 @@ public class Clear implements Callable<Void>
         for (Deployment deployment : to_start) {
             d.clear(deployment);
         }
-        new DeploymentRenderer(to_start, state).renderTsv(System.out);
+        new DeploymentRenderer(to_start, state).render();
 
         return null;
     }

@@ -102,7 +102,7 @@ public class Deploy implements Callable<Void>
 
         Deployment dep = d.deploy(dd);
 
-        new DeploymentRenderer(ImmutableSet.of(dep), state).renderTsv(System.out);
+        new DeploymentRenderer(ImmutableSet.of(dep), state).render();
 
         return null;
     }

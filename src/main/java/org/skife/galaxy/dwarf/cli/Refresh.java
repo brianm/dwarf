@@ -77,7 +77,7 @@ public class Refresh implements Callable<Void>
             d.status(deployment);
         }
 
-        new DeploymentRenderer(to_refresh, state).renderTsv(System.out);
+        new DeploymentRenderer(to_refresh, state).render();
 
         return null;
     }

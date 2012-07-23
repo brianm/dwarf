@@ -71,7 +71,7 @@ public class Stop  implements Callable<Void>
             d.stop(deployment);
         }
 
-        new DeploymentRenderer(to_stop, state).renderTsv(System.out);
+        new DeploymentRenderer(to_stop, state).render();
 
         return null;
     }
