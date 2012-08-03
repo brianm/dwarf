@@ -10,7 +10,7 @@ import com.google.common.collect.Maps;
 import org.skife.cli.Arguments;
 import org.skife.cli.Command;
 import org.skife.cli.Option;
-import org.skife.galaxy.dwarf.DeployInstrcutions;
+import org.skife.galaxy.dwarf.DeployManifest;
 import org.skife.galaxy.dwarf.Deployment;
 import org.skife.galaxy.dwarf.Dwarf;
 import org.skife.galaxy.dwarf.Host;
@@ -71,7 +71,7 @@ public class Deploy implements Callable<Void>
             props.put(it.next(), it.next());
         }
 
-        DeployInstrcutions dd = DeployInstrcutions.figureItOut(host, bundle, Optional.fromNullable(name), props);
+        DeployManifest dd = DeployManifest.figureItOut(host, bundle, Optional.fromNullable(name), props);
 
         Deployment dep = d.deploy(dd);
 

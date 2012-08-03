@@ -2,6 +2,18 @@ package org.skife.galaxy.dwarf;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -11,7 +23,9 @@ import org.skife.ssh.ProcessResult;
 import org.skife.ssh.SSH;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -22,7 +36,43 @@ import static com.google.common.io.CharStreams.readLines;
 
 public class Deployment implements Comparable<Deployment>
 {
-    private final UUID   id;
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    static {
+        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        mapper.registerModule(new SimpleModule().addSerializer(Path.class, new ToStringSerializer())
+                                                .addKeySerializer(Path.class, new JsonSerializer<Path>() {
+
+                                                    @Override
+                                                    public void serialize(Path value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException
+                                                    {
+                                                        jgen.writeFieldName(value.toString());
+                                                    }
+                                                })
+                                                .addDeserializer(Path.class, new JsonDeserializer<Path>()
+                                                {
+
+                                                    @Override
+                                                    public Path deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException
+                                                    {
+                                                        return Paths.get(jp.nextTextValue());
+                                                    }
+                                                })
+
+                                                .addKeyDeserializer(Path.class, new KeyDeserializer()
+                                                {
+
+                                                    @Override
+                                                    public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException, JsonProcessingException
+                                                    {
+                                                        return Paths.get(key);
+                                                    }
+                                                }));
+
+
+    }
+
+    private final UUID id;
     private final String directory;
     private final String name;
     private final String host;
@@ -73,33 +123,39 @@ public class Deployment implements Comparable<Deployment>
 
     public static Deployment deploy(Optional<Path> sshConfig,
                                     Path rootOnHost,
-                                    DeployInstrcutions descriptor) throws IOException
+                                    DeployManifest descriptor) throws IOException
     {
         UUID id = UUID.randomUUID();
 
         Path bundle = UriBox.copyLocally(descriptor.getBundle());
+        Path json_descriptor = Files.createTempFile("foo", ".json");
+        try (OutputStream out = Files.newOutputStream(json_descriptor)) {
+            mapper.writeValue(out, descriptor);
+        }
 
         try (Muxer m = Muxer.withSocketsInTempDir()) {
-            final Path work_dir = rootOnHost.resolve(id.toString());
+            final Path deploy_dir = rootOnHost.resolve(id.toString());
 
             SSH ssh = m.connect(descriptor.getHost().getHostname());
             if (sshConfig.isPresent()) {
                 ssh = ssh.withConfigFile(sshConfig.get().toFile());
             }
 
-            Path expanded = work_dir.resolve("expand");
-            ssh.exec("mkdir", "-p", work_dir.toString()).errorUnlessExitIn(0);
-            ssh.scp(bundle.toFile(), work_dir.resolve("bundle.tar.gz").toFile()).errorUnlessExitIn(0);
+            Path expanded = deploy_dir.resolve("expand");
+            ssh.exec("mkdir", "-p", deploy_dir.toString()).errorUnlessExitIn(0);
+            ssh.scp(json_descriptor.toFile(), deploy_dir.resolve("manifest.json").toFile());
+
+            ssh.scp(bundle.toFile(), deploy_dir.resolve("bundle.tar.gz").toFile()).errorUnlessExitIn(0);
             ssh.exec("mkdir", "-p", expanded.toString()).errorUnlessExitIn(0);
             ssh.exec("tar", "-C", expanded.toString(),
-                     "-zxf", work_dir.resolve("bundle.tar.gz").toString()).errorUnlessExitIn(0);
+                     "-zxf", deploy_dir.resolve("bundle.tar.gz").toString()).errorUnlessExitIn(0);
 
             List<String> lines = readLines(ssh.exec("ls", expanded.toString())
                                               .errorUnlessExitIn(0)
                                               .getStdoutSupplier());
             if (lines.size() != 1) {
                 // grotty tarball, more then one dir at root, cleanup and fail
-                ssh.exec("rm", "-rf", work_dir.toString()).errorUnlessExitIn(0);
+                ssh.exec("rm", "-rf", deploy_dir.toString()).errorUnlessExitIn(0);
                 throw new IllegalStateException("Bundle " + descriptor.getBundle() +
                                                 " had too many files " + lines.toString() + " in root");
             }
@@ -117,15 +173,15 @@ public class Deployment implements Comparable<Deployment>
                 Path remote_parent = remote.getParent();
                 int parent_exists = ssh.exec("test", "-d", remote_parent.toString()).getExitCode();
                 if (parent_exists != 0) {
-                    ssh.exec("mkdir",  "-p", remote_parent.toString());
+                    ssh.exec("mkdir", "-p", remote_parent.toString());
                 }
 
                 ssh.scp(local.toFile(), remote.toFile()).errorUnlessExitIn(0);
             }
 
             ssh.exec("mv",
-                     work_dir.resolve("expand").resolve(lines.get(0)).toString(),
-                     work_dir.resolve("deploy").toString()).errorUnlessExitIn(0);
+                     deploy_dir.resolve("expand").resolve(lines.get(0)).toString(),
+                     deploy_dir.resolve("deploy").toString()).errorUnlessExitIn(0);
 
             // clean up lingering expansion directory
             ssh.exec("rm", "-rf", expanded.toString());
@@ -133,7 +189,7 @@ public class Deployment implements Comparable<Deployment>
             // TODO store deployment state so it can be discovered
 
             return new Deployment(id,
-                                  work_dir.toString(),
+                                  deploy_dir.toString(),
                                   descriptor.getHost().getHostname(),
                                   descriptor.getName());
         }

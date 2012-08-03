@@ -36,7 +36,7 @@ public class Dwarf
         return state.hosts();
     }
 
-    public Deployment deploy(DeployInstrcutions descriptor) throws IOException
+    public Deployment deploy(DeployManifest descriptor) throws IOException
     {
         Deployment d = Deployment.deploy(sshConfig,
                                          Paths.get(deployRoot),

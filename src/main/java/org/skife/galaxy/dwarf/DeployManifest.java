@@ -1,10 +1,14 @@
 package org.skife.galaxy.dwarf;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,14 +18,18 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
-public class DeployInstrcutions
+public class DeployManifest
 {
-    private final Host           host;
-    private final URI            bundle;
+    private final Host host;
+    private final URI bundle;
     private final Map<Path, URI> pathURIMap;
-    private final String         name;
+    private final String name;
 
-    public DeployInstrcutions(Host host, URI bundle, Map<Path, URI> pathURIMap, String name)
+    @JsonCreator
+    public DeployManifest(@JsonProperty("host") Host host,
+                          @JsonProperty("bundle") URI bundle,
+                          @JsonProperty("config") Map<Path, URI> pathURIMap,
+                          @JsonProperty("name") String name)
     {
         this.host = host;
         this.bundle = bundle;
@@ -49,10 +57,22 @@ public class DeployInstrcutions
         return name;
     }
 
-    public static DeployInstrcutions figureItOut(Host host,
-                                                     URI uriForSomething,
-                                                     Optional<String> name,
-                                                     Map<String, String> props) throws IOException
+    @Override
+    public boolean equals(Object o)
+    {
+     return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public static DeployManifest figureItOut(Host host,
+                                             URI uriForSomething,
+                                             Optional<String> name,
+                                             Map<String, String> props) throws IOException
     {
         Path thing = UriBox.copyLocally(uriForSomething);
 
@@ -71,19 +91,19 @@ public class DeployInstrcutions
                                                                                                props));
                 ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
                 DeploymentDescriptor dd = mapper.readValue(yml, DeploymentDescriptor.class);
-                return new DeployInstrcutions(host,
-                                                  uriForSomething.resolve(dd.getBundle()),
-                                                  dd.getConfig(uriForSomething),
-                                                  name.or(dd.getName()));
+                return new DeployManifest(host,
+                                          uriForSomething.resolve(dd.getBundle()),
+                                          dd.getConfig(uriForSomething),
+                                          name.or(dd.getName()));
             }
 
         }
         else /* tarball */
         {
-            return new DeployInstrcutions(host,
-                                              uriForSomething,
-                                              Collections.<Path, URI>emptyMap(),
-                                              name.or("Deployment Without a Name"));
+            return new DeployManifest(host,
+                                      uriForSomething,
+                                      Collections.<Path, URI>emptyMap(),
+                                      name.or("Deployment Without a Name"));
         }
     }
 }
