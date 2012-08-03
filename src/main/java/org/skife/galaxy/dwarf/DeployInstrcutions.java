@@ -5,25 +5,23 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
-public class DeploymentInstructions
+public class DeployInstrcutions
 {
     private final Host           host;
     private final URI            bundle;
     private final Map<Path, URI> pathURIMap;
     private final String         name;
 
-    public DeploymentInstructions(Host host, URI bundle, Map<Path, URI> pathURIMap, String name)
+    public DeployInstrcutions(Host host, URI bundle, Map<Path, URI> pathURIMap, String name)
     {
         this.host = host;
         this.bundle = bundle;
@@ -51,7 +49,7 @@ public class DeploymentInstructions
         return name;
     }
 
-    public static DeploymentInstructions figureItOut(Host host,
+    public static DeployInstrcutions figureItOut(Host host,
                                                      URI uriForSomething,
                                                      Optional<String> name,
                                                      Map<String, String> props) throws IOException
@@ -73,7 +71,7 @@ public class DeploymentInstructions
                                                                                                props));
                 ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
                 DeploymentDescriptor dd = mapper.readValue(yml, DeploymentDescriptor.class);
-                return new DeploymentInstructions(host,
+                return new DeployInstrcutions(host,
                                                   uriForSomething.resolve(dd.getBundle()),
                                                   dd.getConfig(uriForSomething),
                                                   name.or(dd.getName()));
@@ -82,7 +80,7 @@ public class DeploymentInstructions
         }
         else /* tarball */
         {
-            return new DeploymentInstructions(host,
+            return new DeployInstrcutions(host,
                                               uriForSomething,
                                               Collections.<Path, URI>emptyMap(),
                                               name.or("Deployment Without a Name"));

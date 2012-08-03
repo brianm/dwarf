@@ -8,9 +8,6 @@ import org.skife.galaxy.dwarf.Deployment;
 import org.skife.galaxy.dwarf.State;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

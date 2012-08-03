@@ -12,7 +12,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.skife.cli.Cli;
+import org.skife.cli.Command;
+import org.skife.cli.Option;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
@@ -21,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -176,7 +181,7 @@ public class LibraryBehaviorTest
 
     public static class DD
     {
-        private final URI              bundle;
+        private final URI bundle;
         private final Map<String, URI> config;
 
         public DD(@JsonProperty("bundle") URI bundle,
@@ -218,5 +223,39 @@ public class LibraryBehaviorTest
         TemplateParser p = new TemplateParser();
         String rs = p.parse("hello ${ name | world }", TemplateParser.createResolver(Collections.emptyMap()));
         assertThat(rs).isEqualTo("hello world");
+    }
+
+
+    @Test
+    public void testCommandLineSTuff() throws Exception
+    {
+        Cli<Callable> cli = Cli.buildCli("cli", Callable.class)
+                               .withCommand(MyCommand.class)
+                               .build();
+
+        Callable c = cli.parse("say", "--name", "Brian");
+        assertThat(c.call()).isEqualTo("Brian");
+
+    }
+
+
+    public static class GlobalConfig
+    {
+        @Option(name = "--name")
+        public String name = "world";
+    }
+
+    @Command(name = "say")
+    public static class MyCommand implements Callable<String>
+    {
+
+        @Inject
+        public GlobalConfig config = new GlobalConfig();
+
+        @Override
+        public String call() throws Exception
+        {
+            return config.name;
+        }
     }
 }
