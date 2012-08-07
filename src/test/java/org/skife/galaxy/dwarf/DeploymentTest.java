@@ -196,16 +196,16 @@ public class DeploymentTest
         Path cfg = Paths.get(d.getDirectory()).resolve("manifest.json");
         assertThat(Files.exists(cfg)).isTrue();
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule()
-                                  .addKeyDeserializer(Path.class, new KeyDeserializer()
-                                  {
-                                      @Override
-                                      public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException, JsonProcessingException
-                                      {
-                                          return Paths.get(key);
-                                      }
-                                  }));
+        ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new SimpleModule()
+                                .addKeyDeserializer(Path.class, new KeyDeserializer()
+                                {
+                                    @Override
+                                    public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException, JsonProcessingException
+                                    {
+                                        return Paths.get(key);
+                                    }
+                                }));
         DeployManifest manifest = mapper.readValue(cfg.toFile(), DeployManifest.class);
         assertThat(manifest).isEqualTo(new DeployManifest(new Host("localhost"),
                                                           Paths.get("src/test/resources/echo.tar.gz").toUri(),

@@ -19,9 +19,11 @@ import org.skife.cli.Option;
 import javax.inject.Inject;
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -256,6 +258,15 @@ public class LibraryBehaviorTest
         public String call() throws Exception
         {
             return config.name;
+        }
+    }
+
+    @Test
+    public void testClassloaderHackery() throws Exception
+    {
+        Enumeration<URL> rs = LibraryBehaviorTest.class.getClassLoader().getResources("");
+        while (rs.hasMoreElements()) {
+            System.out.println(rs.nextElement());
         }
     }
 }
