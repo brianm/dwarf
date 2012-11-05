@@ -1,8 +1,13 @@
+PROJECT=dwarf
+
 build: setup
-	GOPATH=$(PWD):$(PWD)/ext ; go install dwarf/dwarf
+	GOPATH=$(PWD):$(PWD)/ext ; go build -o $(PROJECT) $(PROJECT)/main
+
+test:
+	GOPATH=$(PWD):$(PWD)/ext ; go test $(PROJECT)
 
 clean:
-	rm -rf bin
+	rm -f $(PROJECT)
 	rm -rf pkg
 
 setup:
