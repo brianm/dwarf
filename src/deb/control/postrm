@@ -1,3 +1,0 @@
-#!/bin/sh
-update-rc.d sculptor-agent remove
-rm -rf /var/galaxy

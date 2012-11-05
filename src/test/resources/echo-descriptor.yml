@@ -1,4 +1,0 @@
-name:   Echo Server
-bundle: echo.tar.gz
-config:
-  /etc/runtime.properties : runtime.properties
