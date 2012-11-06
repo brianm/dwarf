@@ -1,17 +1,17 @@
 PROJECT=dwarf
 
 build: setup
-	GOPATH=$(PWD):$(PWD)/ext ; go build -o $(PROJECT) $(PROJECT)/main
+	GOPATH=$(PWD):$(PWD)/ext go build -o $(PROJECT) $(PROJECT)/main
 
 test:
-	GOPATH=$(PWD):$(PWD)/ext ; go test $(PROJECT)
+	GOPATH=$(PWD):$(PWD)/ext go test $(PROJECT)
 
 clean:
 	rm -f $(PROJECT)
 	rm -rf pkg
 
 setup:
-	GOPATH=$(PWD)/ext ; go get code.google.com/p/goconf/conf
+	GOPATH=$(PWD)/ext go get code.google.com/p/goconf/conf
 
 retag:
 	rm -f TAGS
@@ -21,5 +21,5 @@ retag:
 
 tags: retag
 
-doc-server:
-	GOPATH=$(PWD):$(PWD)/ext ; godoc -http=:6060
+godoc:
+	GOPATH=$(PWD):$(PWD)/ext godoc -http=:6060
