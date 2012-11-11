@@ -1,7 +1,7 @@
 PROJECT=dwarf
 
 build: setup
-	GOPATH=$(PWD):$(PWD)/ext go build -o $(PROJECT) $(PROJECT)/main
+	GOPATH=$(PWD):$(PWD)/ext go install dwarf/dwarf
 
 test:
 	GOPATH=$(PWD):$(PWD)/ext go test $(PROJECT)
